@@ -1,10 +1,10 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "7c97c07e9edb7d800d37b5fb63dedebd",
+    "revision": "01bebba1572097858febd8cd403c6771",
     "url": "/react-native-chess/index.html"
   },
   {
-    "revision": "99cd033a46f587e5924b",
+    "revision": "37075a1413e4c56b7b5e",
     "url": "/react-native-chess/static/css/main.5ecd60fb.chunk.css"
   },
   {
@@ -16,8 +16,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/react-native-chess/static/js/2.27beddcd.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "99cd033a46f587e5924b",
-    "url": "/react-native-chess/static/js/main.2d174269.chunk.js"
+    "revision": "37075a1413e4c56b7b5e",
+    "url": "/react-native-chess/static/js/main.5bce8872.chunk.js"
   },
   {
     "revision": "5c0f17ca71be68e610d5",

@@ -4,40 +4,50 @@ import type {ColorType} from './Piece';
 type BoardRow = Array<?Piece>;
 
 type Field = [number, number];
-type MoveResult = 'move' | 'captured' | 'promotion' | 'impossible' | 'own';
+export type MoveResult =
+  | 'move'
+  | 'captured'
+  | 'promotion'
+  | 'impossible'
+  | 'own'
+  | 'check'
+  | 'checkmate';
+
+const deepClone = (items) => JSON.parse(JSON.stringify(items));
 
 export default class Board {
   rows: Array<BoardRow>;
 
-  constructor() {
-    this.rows = this.initialState();
+  constructor(rows?: Array<BoardRow>) {
+    this.rows = rows ? deepClone(rows) : this.initialState();
   }
 
-  pieceAt = (field: Field): Piece => {
+  pieceAt = (field: Field): ?Piece => {
     return this.rows[field[0]][field[1]];
   };
 
-  isChecked = (): boolean => {
-    //TODO
-    const findKing = (color: ColorType): Field => {
-      for (let i = 0; i < 8; i++) {
-        for (let j = 0; i < 8; i++) {
-          const piece = this.pieceAt([i, j]);
-          if (piece?.type === 'king' && piece?.color === color) {
-            return [i, j];
-          }
-        }
-      }
-      console.error('No king, no fun');
-    };
-
-    findKing('black');
+  possibleMoves = (piece: Piece, from: Field): [?Field] => {
+    return this.allFields().filter((to) => this.isValidMove(piece, from, to));
   };
 
-  move = (from: Field, to: Field): MoveResult => {
+  hasPossibleMove = (piece: Piece, from: Field): boolean => {
+    return this.allFields().some((to) => this.isValidMove(piece, from, to));
+  };
+
+  isCheckMate = (color: ColorType): boolean => {
+    return !this.allFields().some((position) => {
+      const piece = this.pieceAt(position);
+      if (!piece || piece.color !== color) {
+        return false;
+      }
+      return this.hasPossibleMove(piece, position);
+    });
+  };
+
+  move = (from: Field, to: Field, isValid?: boolean): MoveResult => {
     const piece = this.pieceAt(from);
 
-    if (piece && this.canMove(piece, from, to)) {
+    if (piece && (isValid ?? this.isValidMove(piece, from, to))) {
       const pieceAtDestination = this.pieceAt(to);
 
       if (
@@ -55,6 +65,16 @@ export default class Board {
           return 'promotion';
         }
 
+        if (isValid !== true) {
+          const otherPlayerColor = piece.color === 'white' ? 'black' : 'white';
+          const king = this.findKing(otherPlayerColor);
+          if (this.isUnderAttack(king, otherPlayerColor)) {
+            if (this.isCheckMate(otherPlayerColor)) {
+              return 'checkmate';
+            }
+            return 'check';
+          }
+        }
         return pieceAtDestination ? 'captured' : 'move';
       }
     } else if (this.pieceAt(to)?.color === piece.color) {
@@ -64,11 +84,36 @@ export default class Board {
     }
   };
 
-  canMove = (piece: Piece, from: Field, to: Field): boolean => {
-    if (this.pieceAt(to)?.color === piece.color) {
-      return false;
-    }
+  findKing = (color: ColorType): Field => {
+    return this.allFields().find((f) => {
+      const piece = this.pieceAt(f);
+      return piece?.type === 'king' && piece?.color === color;
+    });
+  };
 
+  allFields = (): [Field] => {
+    const fields = [];
+    for (let i = 0; i < 8; i++) {
+      for (let j = 0; j < 8; j++) {
+        fields.push([i, j]);
+      }
+    }
+    return fields;
+  };
+
+  isUnderAttack = (field: Field, color: ColorType): boolean => {
+    const checker = this.allFields().find((position) => {
+      const piece = this.pieceAt(position);
+      if (!piece || piece.color === color) {
+        return false;
+      }
+      return this.isValidMove(piece, position, field);
+    });
+
+    return checker != null;
+  };
+
+  canMove = (piece: Piece, from: Field, to: Field): boolean => {
     const v = from[0] - to[0];
     const h = from[1] - to[1];
     const dh = Math.abs(h);
@@ -110,8 +155,7 @@ export default class Board {
 
     switch (piece.type) {
       case 'king':
-        //TODO: add conditions for checks
-        return dh <= 1 && dv <= 1;
+        return dh <= 1 && dv <= 1 && !this.isUnderAttack(to, piece.color);
       case 'queen':
         return canRookMove() || canBishopMove();
       case 'rook':
@@ -142,6 +186,29 @@ export default class Board {
       default:
         return false;
     }
+  };
+
+  isValidMove = (piece: Piece, from: Field, to: Field): boolean => {
+    if (!to) {
+      return false;
+    }
+
+    if (this.pieceAt(to)?.color === piece.color) {
+      return false;
+    }
+
+    if (!this.canMove(piece, from, to)) {
+      return false;
+    }
+
+    const b = new Board(this.rows);
+    b.move(from, to, true);
+    const king = b.findKing(piece.color);
+    if (!king) {
+      return true;
+    }
+
+    return !b.isUnderAttack(king, piece.color);
   };
 
   initialRow = (color: ColorType): BoardRow => {

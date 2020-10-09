@@ -2,10 +2,12 @@ import React from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import Board from './Board';
 import type {ColorType} from './Piece';
+import type {MoveResult} from './Board';
 
 type AppState = {
   currentColor: ColorType,
   selectedField: ?[number, number],
+  status: ?MoveResult,
 };
 
 export default class Chess extends React.Component<{}, AppState> {
@@ -17,6 +19,7 @@ export default class Chess extends React.Component<{}, AppState> {
     this.state = {
       currentColor: 'white',
       selectedField: null,
+      status: null,
     };
   }
 
@@ -45,7 +48,13 @@ export default class Chess extends React.Component<{}, AppState> {
 
       const status = this.board.move(prevState.selectedField, field);
 
-      const isSuccess = ['move', 'captured', 'promotion'].includes(status);
+      const isSuccess = [
+        'move',
+        'captured',
+        'promotion',
+        'check',
+        'checkmate',
+      ].includes(status);
       const nextField = isSuccess
         ? null
         : status === 'own'
@@ -61,6 +70,7 @@ export default class Chess extends React.Component<{}, AppState> {
       return {
         selectedField: nextField,
         currentColor: nextColor,
+        status: status,
       };
     });
   };
@@ -71,7 +81,7 @@ export default class Chess extends React.Component<{}, AppState> {
     if (this.state.selectedField != null) {
       const piece = this.board.pieceAt(this.state.selectedField);
       if (piece != null) {
-        isPossibleMove = this.board.canMove(
+        isPossibleMove = this.board.isValidMove(
           piece,
           this.state.selectedField,
           field,
@@ -113,6 +123,7 @@ export default class Chess extends React.Component<{}, AppState> {
           );
         })}
         <Text>Current move: {this.state.currentColor}</Text>
+        <Text>{this.state.status ?? '-'}</Text>
         <Text
           style={{
             backgroundColor: 'orange',
@@ -125,6 +136,7 @@ export default class Chess extends React.Component<{}, AppState> {
             this.setState({
               selectedField: null,
               currentColor: 'white',
+              status: null,
             });
           }}>
           Reset

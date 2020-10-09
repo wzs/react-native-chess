@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/react-native-chess/static/css/main.5ecd60fb.chunk.css",
-    "main.js": "/react-native-chess/static/js/main.2d174269.chunk.js",
-    "main.js.map": "/react-native-chess/static/js/main.2d174269.chunk.js.map",
+    "main.js": "/react-native-chess/static/js/main.5bce8872.chunk.js",
+    "main.js.map": "/react-native-chess/static/js/main.5bce8872.chunk.js.map",
     "runtime-main.js": "/react-native-chess/static/js/runtime-main.62f23eb1.js",
     "runtime-main.js.map": "/react-native-chess/static/js/runtime-main.62f23eb1.js.map",
     "static/js/2.27beddcd.chunk.js": "/react-native-chess/static/js/2.27beddcd.chunk.js",
     "static/js/2.27beddcd.chunk.js.map": "/react-native-chess/static/js/2.27beddcd.chunk.js.map",
     "index.html": "/react-native-chess/index.html",
-    "precache-manifest.fab38c36a5616a5f10684b92c5de909c.js": "/react-native-chess/precache-manifest.fab38c36a5616a5f10684b92c5de909c.js",
+    "precache-manifest.5b7e7ed92054353b2bea2c9ed25020a0.js": "/react-native-chess/precache-manifest.5b7e7ed92054353b2bea2c9ed25020a0.js",
     "service-worker.js": "/react-native-chess/service-worker.js",
     "static/css/main.5ecd60fb.chunk.css.map": "/react-native-chess/static/css/main.5ecd60fb.chunk.css.map",
     "static/js/2.27beddcd.chunk.js.LICENSE.txt": "/react-native-chess/static/js/2.27beddcd.chunk.js.LICENSE.txt"
@@ -17,6 +17,6 @@
     "static/js/runtime-main.62f23eb1.js",
     "static/js/2.27beddcd.chunk.js",
     "static/css/main.5ecd60fb.chunk.css",
-    "static/js/main.2d174269.chunk.js"
+    "static/js/main.5bce8872.chunk.js"
   ]
 }
