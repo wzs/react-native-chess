@@ -4,14 +4,6 @@ import type {ColorType} from './Piece';
 type BoardRow = Array<?Piece>;
 
 type Field = [number, number];
-export type MoveResult =
-  | 'move'
-  | 'captured'
-  | 'promotion'
-  | 'impossible'
-  | 'own'
-  | 'check'
-  | 'checkmate';
 
 const deepClone = (items) => JSON.parse(JSON.stringify(items));
 
@@ -34,7 +26,7 @@ export default class Board {
     return this.allFields().some((to) => this.isValidMove(piece, from, to));
   };
 
-  isCheckMate = (color: ColorType): boolean => {
+  hasAnyPossibleMoves = (color: ColorType): boolean => {
     return !this.allFields().some((position) => {
       const piece = this.pieceAt(position);
       if (!piece || piece.color !== color) {
@@ -44,7 +36,11 @@ export default class Board {
     });
   };
 
-  move = (from: Field, to: Field, isValid?: boolean): MoveResult => {
+  fieldDescription = (field: Field): string => {
+    return String.fromCharCode(97 + field[1]) + (8 - field[0]).toString();
+  };
+
+  move = (from: Field, to: Field, isValid?: boolean): ?string => {
     const piece = this.pieceAt(from);
 
     if (piece && (isValid ?? this.isValidMove(piece, from, to))) {
@@ -54,33 +50,46 @@ export default class Board {
         pieceAtDestination != null &&
         pieceAtDestination.color === piece.color
       ) {
-        return 'impossible';
+        return null;
       } else {
         piece.hasMoved = true;
         this.rows[to[0]][to[1]] = piece;
         this.rows[from[0]][from[1]] = null;
 
         if (piece.type === 'pawn' && (to[0] === 0 || to[0] === 7)) {
+          const oldSymbol = piece.symbol;
           piece.type = 'queen';
-          return 'promotion';
+          return oldSymbol + this.fieldDescription(from) + '=' + piece.symbol;
         }
 
+        const move =
+          piece.symbol +
+          this.fieldDescription(from) +
+          '-' +
+          this.fieldDescription(to);
+
+        const otherPlayerColor = piece.color === 'white' ? 'black' : 'white';
+        const kingPosition = this.findKing(otherPlayerColor);
         if (isValid !== true) {
-          const otherPlayerColor = piece.color === 'white' ? 'black' : 'white';
-          const king = this.findKing(otherPlayerColor);
-          if (this.isUnderAttack(king, otherPlayerColor)) {
-            if (this.isCheckMate(otherPlayerColor)) {
-              return 'checkmate';
+          const hasAnyPossibleMoves = this.hasAnyPossibleMoves(
+            otherPlayerColor,
+          );
+
+          if (this.isUnderAttack(kingPosition, otherPlayerColor)) {
+            if (hasAnyPossibleMoves) {
+              return move + 'X';
+            } else {
+              return move + '+';
             }
-            return 'check';
+          } else if (hasAnyPossibleMoves) {
+            return move + '=';
           }
         }
-        return pieceAtDestination ? 'captured' : 'move';
+
+        return pieceAtDestination ? move.replace('-', ':') : move;
       }
-    } else if (this.pieceAt(to)?.color === piece.color) {
-      return 'own';
     } else {
-      return 'impossible';
+      return null;
     }
   };
 

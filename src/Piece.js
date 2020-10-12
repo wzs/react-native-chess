@@ -14,7 +14,7 @@ export default class Piece {
     return p;
   };
 
-  get text() {
+  get text(): string {
     switch (this.color) {
       case 'white':
         switch (this.type) {
@@ -47,6 +47,14 @@ export default class Piece {
           case 'pawn':
             return '♟';
         }
+    }
+  }
+
+  get symbol(): string {
+    if (this.type === 'pawn') {
+      return '';
+    } else {
+      return this.type.charAt(0).toUpperCase();
     }
   }
 }

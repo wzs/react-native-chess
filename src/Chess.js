@@ -2,12 +2,11 @@ import React from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import Board from './Board';
 import type {ColorType} from './Piece';
-import type {MoveResult} from './Board';
 
 type AppState = {
   currentColor: ColorType,
   selectedField: ?[number, number],
-  status: ?MoveResult,
+  status: ?string,
 };
 
 export default class Chess extends React.Component<{}, AppState> {
@@ -40,26 +39,19 @@ export default class Chess extends React.Component<{}, AppState> {
         };
       }
 
-      if (!this.board.pieceAt(prevState.selectedField)) {
+      if (
+        !this.board.pieceAt(prevState.selectedField) ||
+        this.board.pieceAt(field)?.color === this.state.currentColor
+      ) {
         return {
           selectedField: field,
         };
       }
 
       const status = this.board.move(prevState.selectedField, field);
+      const isSuccess = status != null;
 
-      const isSuccess = [
-        'move',
-        'captured',
-        'promotion',
-        'check',
-        'checkmate',
-      ].includes(status);
-      const nextField = isSuccess
-        ? null
-        : status === 'own'
-        ? field
-        : prevState.selectedField;
+      const nextField = isSuccess ? null : prevState.selectedField;
 
       const nextColor = isSuccess
         ? prevState.currentColor === 'white'
