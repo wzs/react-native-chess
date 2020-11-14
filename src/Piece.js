@@ -5,6 +5,7 @@ export default class Piece {
   type: PieceType;
   color: ColorType;
   hasMoved = false;
+  isPromoted = false;
 
   static new = (color: ColorType, type: PieceType): Piece => {
     const p = new Piece();

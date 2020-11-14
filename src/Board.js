@@ -59,6 +59,7 @@ export default class Board {
         if (piece.type === 'pawn' && (to[0] === 0 || to[0] === 7)) {
           const oldSymbol = piece.symbol;
           piece.type = 'queen';
+          piece.isPromoted = true;
           return oldSymbol + this.fieldDescription(from) + '=' + piece.symbol;
         }
 
@@ -162,17 +163,25 @@ export default class Board {
       return true;
     };
 
+    const canKnightMove = () => {
+      return (dh === 2 && dv === 1) || (dh === 1 && dv === 2);
+    };
+
     switch (piece.type) {
       case 'king':
         return dh <= 1 && dv <= 1 && !this.isUnderAttack(to, piece.color);
       case 'queen':
-        return canRookMove() || canBishopMove();
+        return (
+          canRookMove() ||
+          canBishopMove() ||
+          (piece.isPromoted && canKnightMove())
+        );
       case 'rook':
         return canRookMove();
       case 'bishop':
         return canBishopMove();
       case 'knight':
-        return (dh === 2 && dv === 1) || (dh === 1 && dv === 2);
+        return canKnightMove();
       case 'pawn':
         const dir = piece.color === 'white' ? 1 : -1;
         const adv = v * dir;
